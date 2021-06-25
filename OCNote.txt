@@ -1,0 +1,560 @@
+2020-6-8: 
+
+
+今天学了 oc 继承
+ 今天学习了OC的类内变量与属性
+/*
+
+每一个字符串前都要加上@   比如NSLog(@"p1.peopleName - %@",p1.peopleName);
+
+*/
+
+
+
+
+
+2020-6-9
+今天在廖雪峰的官方网站上学了git，网址是：https://www.liaoxuefeng.com/wiki/896043488029600/897884457270432
+HEAD：当前版本库的地址，是一个指针
+git reset HEAD -- read.txt 把HEAD的内容复制给暂存区
+和git reset f0a1684 -- read.txt作用一致
+
+open .
+git add .
+git checkout a9d985f
+
+
+git reset HEAD read.txt 可以吧暂存区的修改撤销掉（unstage），是把版本库中的文件拉取到暂存区
+git checkout  --read.txt 让这个文件回到最近一次的git commit和git add时的状态
+git diff HEAD --read.txt 查看版本区最新版和工作区的区别
+git status   查看git状态
+git log 查看从近到远的提交日志
+git log -- pretty=oneline 每个提交日志显示只占一行
+git reflow 记录每一次命令
+git reset --hard HEAD^
+git reset --hard HEAD~100
+
+
+2021-6-10
+发现一个搞笑交友网站，以后没事可以看看：https://docs.corp.kuaishou.com/s/home/fcAAhmSk1d2vXUaBnMhF7M1pI#section=1347692286
+
+快手中学网站：https://school.corp.kuaishou.com/school/web/online?t=1623290456278
+
+还有IOS学习网站：https://school.corp.kuaishou.com/school/web/online/info/KC2019080
+IOS新人学习路线：https://docs.corp.kuaishou.com/d/home/fcACi2MsUiVu9fRWkP70RYxWe#
+
+
+
+OC基础语法----属性与成员变量：
+/*
+ 方便辨认调用的是属性还是成员变量，_peopleName是成员变量，peopleName是属性，二者不一样
+ 
+ 只要在.h文件中声明了属性（peopleName）,系统就会自动生成成员变量（_peopleName）
+ @property(nonatomic,strong)NSString *peopleName;
+ 
+ .m文件中声明变量
+ @implementation People
+ {
+     int _peopleAge;
+     int _peopleSex;
+ }
+*/
+
+OC基础语法---函数
+
+函数名 - 去掉函数类型、参数类类型、参数名，剩下的就是函数名
+ 4.初始化方法
+ - (id)init;  id是万能类型，可以返回任意类型
+ - (instancetype) init; instancetype 返回当前类类型
+ - (instancetype)init
+ {
+     self = [super init];
+     if (self) {
+         _peopleName=@"Vistor";
+         _peopleAge=30;
+         
+     }
+     return self;
+ }
+ - (instancetype)initWithPeopleName:(NSString *)peopleName andPeopleAge:(int)peopleAge
+ {
+     self=[super self];
+     if(self)
+     {
+         _peopleName=peopleName;
+         _peopleAge=peopleAge;
+         
+         
+     }
+     return self;
+ }
+ 
+OC基础语法---封装
+成员变量访问修饰符的问题
+默认 - 受保护（protected）
+@public int _classInt;             //公有 - 在类内外都可以使用 可以被继承   使用时用->格式
+@private                           //私有 - 在类内可以使用 类外不可以被调用 不可以被继承
+@protected NSString *_classStr;    //受保护 - 在类内可以使用，类外不可以使用 可以被继承
+@package                           //框架权限 - 在框架内相当于受保护 在框架外相当于私有的
+
+//方法没有访问修饰符的如同C语言一样
+//在.h文件中不声明，在.m文件中定义 就在类外不可以使用，在类内可以使用，不可以继承
+
+
+OC基础语法---继承
+//interface有时候代表继承
+@interface MySubClass : MyClass
+
+//父类中的私有变量是无法继承的
+//如果父类的方法中使用了私有变量，那么继承的方法中，可以操作和打印私有变量，但是我们不可以在子类中直接调用私有变量
+/父类中的私有变量是无法继承的
+//如果父类的方法中使用了私有变量，那么继承的方法中，可以操作和打印私有变量，但是我们不可以在子类中直接调用私有变量
+
+OC基础语法---多态
+Printer *printer1=[[ColorPrinter alloc] init];
+
+
+2021-6-11
+MRC(Manual Reference Counting) 手动引用计数
+ARC(Automatic Reference Counting) 自动引用计数
+注意不要搞混automatic 和 atomic
+
+1. 概念
+  （1）对象回收本质：申请一个变量就是向系统申请确定字节数的空间，这些空间系统不会分配给别人了。
+        		 当变量被回收的时候，代表变量占用的空间可以分配给别人，但空间中存储的数据还在。  
+  （2）OC中僵尸对象	：一个被释放的对象，但是这个对象所占的空间还没有分配给别人
+      OC中野指针：指向的对象已经被回收
+      C中野指针：定义一个指针，没有初始化，指向一块随机空间
+      通过野指针访问僵尸对象。如果僵尸对象对占用的空间没有被分配，没问题；否则，会出错。科比通过设置zombie object
+      选项来自动检测僵尸对象，从而避免出错。
+  （3）基本数据类型：int double float
+      构造类型：数组 结构体。枚举
+      指针类型 int *p1;
+      空类型  void
+     typedef id(万能指针)  SEL   block.  nil
+  （4）内存泄漏：对象该回收的时候没有被回收，知道程序结束的时候才回收
+
+
+2.当属性是一个OC对象,并且讲一个对象赋值给属性一个属性时，代表传入的对象多一个人使用，需要retain
+						 原来的对象少一个人使用，需要release
+  如果是相同对象，就不处理，否则会先release，可能会出现僵尸对象，然后报错
+  -(void) setCar:(Car *)car
+  {
+	if(_car!=car){
+	    [_car release];
+	    _car=[car retain];
+	
+	}
+	
+  }
+  还要重写dealloc
+  -(void)dealloc
+  {
+	[_car release];
+	[super release];
+
+  }
+  
+
+3.@property参数
+  @property可以自动生成成员变量，属性的getter、setter方法
+   (1)与多线程相关的参数
+	atomic:默认值。生成的SETTER方法加上线程安全锁。 安全、效率低
+	nonatomic：无锁。不安全、效率高
+   (2)与生成的setter方实现相关的参数
+	assign：默认值，生成的setter的实现就是简单的赋值
+	retain：此属性的setter方法的实现就是标准的MRC的内存代码管理
+  （3）与生成的只读、读写相关的参数
+	readonly：只读封装
+	readwrite：读写封装
+  （4）与生成的getter、setter方法名字相关的参数
+	getter、setter。
+
+  （5）retain和strong
+	当属性的类型是OC对象时，在MRC机制下使用retain，在ARC机制下使用strong
+	当属性的类型是非OC对象时，在MRC机制下使用assign，在ARC机制下无
+	如果是循环引用的话，MRC：一端使用retain，一端使用assign
+		        ARC：一端使用strong，一端使用weak
+
+
+2021-6-20
+UIButton按钮控件、UILabel控件、UITextField控件、UISwitch控件、UISlider控件、UIImageView控件
+
+1.UIButton按钮控件
+- (void)viewDidLoad {
+	【super viewDidLoad];
+	//创建按钮，UIButtonType样式分为多种
+	UIButton *but = [UIButton buttonWithType:UIButtonTypeSystem];
+	//设置背景颜色
+	but.backgroundColor = [UIColor clearColor];
+	//设置区域范围
+	but.frame = CGRectMake(0, 64, 100, 100);
+	//添加到view上
+	[self.view addSubview:but];
+	//设置tag值
+	but.tag = 0;
+	//设置按钮标题文字的字体大小
+	but.titleLabel.font = [UIFont systemFontOfSize:20.0f];
+	//设置圆角直径
+	but.layer.cornerRadius = 10.0f;
+	//设置标题标题状态的文字，UIControllerState不止一种
+	[but setTitle:@"按钮" forState:UIControlStateNormal];
+	// 设置按钮状态图标
+    	[but setImage:[UIImage imageNamed:@"加号"] forState:UIControlStateNormal];
+    	// 设置按钮状态背景图
+    	[but setBackgroundImage:[UIImage imageNamed:@"头像-橙"] forState:UIControlStateNormal];
+	// 添加(绑定)点击事件
+    	/*
+	参数说明:
+	target          : 事件监听对象，一般传self
+	action          : 回调的事件方法，只能传按钮本身一个参数
+	ControlEvents   : 监听类型
+	UIControlEventTouchUpInside : 单击
+	UIControlEventTouchCancel   : 触摸取消
+	UIControlEventTouchDown     : 触摸完成
+	到目前为止，我用的最多的就是单击事件，基本很少用到取消与完成
+    	*/
+    [but addTarget:self action:@selector(ButtonTouchEvent:) forControlEvents:UIControlEventTouchUpInside];
+}
+// 按钮点击事件回调处理
+- (void)ButtonTouchEvent:(UIButton *)sender {
+    // 设置按钮选中技巧
+    sender.selected = !sender.selected;
+}
+
+
+
+2.UILabel控件
+- (void)viewDidLoad {
+    // 创建对象
+    UILabel *label = [[UILabel alloc] init];
+    // frame
+    label.frame = CGRectMake(100, 600, 200, 75);
+    // 颜色
+    label.backgroundColor = [UIColor redColor];
+    // 内容
+    label.text = @"我是UILabel";
+    // 对齐方式
+    label.textAlignment =  NSTextAlignmentCenter;
+    // 字体大小
+    label.font = [UIFont systemFontOfSize:20.f];
+    label.font = [UIFont boldSystemFontOfSize:20.f];
+    label.font = [UIFont italicSystemFontOfSize:20.f];
+    // 文字颜色
+    label.textColor = [UIColor purpleColor];
+    // 设置阴影
+    label.shadowColor = [UIColor blueColor];
+    label.shadowOffset = CGSizeMake(-2, 1);
+    // 行数 0为自动换行
+    label.numberOfLines = 0;
+    // 显示模式
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    //添加到view
+    [self.view addSubview:label];
+}
+
+
+3.UITexField控件
+-(void)viewDidLoad{
+
+    //创建输入框
+    UITextField *text = [[UITextField alloc] initWithFrame:CGRectMake(100, 164, 200, 50)];
+    //设置输入框的背景颜色，此时设置为白色 如果使用了自定义的背景图片边框会被忽略掉
+    text.backgroundColor = [UIColor clearColor];
+    /**
+     *  设置边框样式，只有设置了才会显示边框样式
+     *  typedef enum {
+     *  UITextBorderStyleNone,
+     *  UITextBorderStyleLine,
+     *  UITextBorderStyleBezel,
+     *  UITextBorderStyleRoundedRect
+     *  } UITextBorderStyle;
+     */
+    text.borderStyle = UITextBorderStyleNone;
+    //设置背景,只有在UITextBorderStyleNone样式下，设置背景图才会生效，且图片大小小于text的frame时，图片会拉伸
+    text.background = [UIImage imageNamed:@"头像-橙"];
+    //设置输入框内容的字体样式和大小
+    text.font = [UIFont fontWithName:@"Arial" size:20.0f];
+    //设置字体颜色
+    text.textColor = [UIColor redColor];
+    //当输入框没有内容时，提示内容为请输入
+    text.placeholder = @"请输入";
+    /**
+    *  输入框中是否有个叉号，在什么时候显示，用于一次性删除输入框中的内容
+    *  typedef enum {
+    *  UITextFieldViewModeNever,　重不出现
+    *  UITextFieldViewModeWhileEditing, 编辑时出现
+    *  UITextFieldViewModeUnlessEditing,　除了编辑外都出现
+    *  UITextFieldViewModeAlways 　一直出现
+    *  } UITextFieldViewMode;
+    *  */
+    text.clearButtonMode = UITextFieldViewModeAlways;
+    //输入框中一开始就有的文字
+    text.text = @"一开始就在输入框的文字";
+    //每输入一个字符就变成点 用语密码输入
+    //text.secureTextEntry = YES;
+    //再次编辑就清空
+    text.clearsOnBeginEditing = YES;
+    //设置为YES时文本会自动缩小以适应文本窗口大小.默认是保持原来大小,而让长文本滚动
+    text.adjustsFontSizeToFitWidth = YES;
+    //设置监听
+    [text addTarget:self
+              action:@selector(textFieldDidChange:)
+    forControlEvents:UIControlEventEditingChanged];
+    //添加到view上
+    [self.view addSubview:text];
+    
+    #pragma mark - UITextView
+    //创建textView
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(100, 300, 200, 100)];
+    //设置textView内容
+    textView.text = @"这是一段文字，这是一段文字，这是一段文字，这是一段文字。";
+    //加载到视图上
+    [self.view addSubview:textView];    
+}
+//输入框监听方法
+- (void)textFieldDidChange:(UITextField*)textField{
+    NSLog(@"输入框内容 = %@",textField.text);
+}
+
+
+
+
+4.UISitch控件
+-（void)viewDidLoad{
+    //创建
+    UISwitch *switchView = [[UISwitch alloc] initWithFrame:CGRectMake(100, 400, 200, 100)];
+    //设置UISwitch的初始化状态
+    switchView.on = YES;
+    //事件触发
+    [switchView addTarget:self action:@selector(switchAction:) forControlEvents:UIControlEventValueChanged];  // 开关事件切换通知
+    //添加在view上
+    [self.view addSubview:switchView];
+}
+//开关按钮监听事件触发
+-(void)switchAction:(id)sender {
+    UISwitch *switchButton = (UISwitch*)sender;
+    BOOL isButtonOn = [switchButton isOn];
+    if (isButtonOn) {
+        NSLog(@"开");
+    }else {
+        NSLog(@"关");
+    }
+}
+// slider变动
+- (void)sliderValueChanged:(id)sender {
+    UISlider *slider = (UISlider *)sender;
+}
+
+
+5.UISlider控件
+-（void)viewDidLoad{
+    // 滑动条slider
+    UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(100, 500, 150, 20)];
+    // 设置最小值
+    slider.minimumValue = 9;
+    // 设置最大值
+    slider.maximumValue = 11;
+    // 设置初始值
+    slider.value = (slider.minimumValue + slider.maximumValue) / 2;
+    // 设置可连续变化
+    slider.continuous = YES;
+    //添加在view上
+    [self.view addSubview:slider];
+    // 针对值变化添加响应方法
+    [slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
+}
+
+
+6.UIImageView控件
+-（void)viewDidLoad{
+    #pragma mark - UIImageView
+
+     //产生图像
+     UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"image-0"]];
+
+    //初始化
+    UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 500, 100, 100)];
+    //设置图片
+    image.image = [UIImage imageNamed:@"加号"];
+    //添加在view
+    [self.view addSubview:image];
+}
+
+
+
+
+
+2021-6-22
+UIViewController总结、UITableViewController总结、UINavigationController总结、UITabBarController总结
+1.UIViewController
+
+
+2.UITableViewController
+
+
+
+
+3.UINavigationController
+UINavigationController管理栈堆视图控制器和一个导航栏，它将视图转换为推动的导航栏和弹出试图，同时保持同步
+1.创建UINavigationController
+	//1.先获取首页的视图控制器
+	let viewController = ViewController()
+	//2.将首页视图控制器作为UINavigationController的根视图
+	let navigationController = UINavigationController(rootViewController: viewController)
+	//3.将UINavigationController控制器作为window根视图
+    	self.window?.rootViewController = navigationController
+2.为堆栈视图添加新的视图(跳转到新页面)
+	//获取新视图
+	let detailViewContoller = DetailPageViewController()
+	//将新视图添加到堆栈中
+    	self.navigationController.pushViewController(detailViewContoller, animated: true)
+3.推出堆栈视图中最新的视图(返回上一个页面)
+	let secondViewContoller = SecondPageViewController()
+	//推出视图
+    	self.navigationController?.pushViewController(secondViewContoller, animated: true)
+4.返回到根视图
+	self.navigationController?.popToRootViewController(animated: true)
+5.导航栈里的控制器
+	//获取当前导航栈里所有的控制器
+	self.navigationController?.viewControllers      
+	//获取某个导航的顶部控制器
+	self.navigationController?.topViewController       
+	//当前访问的控制器
+	self.navigationController?.visibleViewController
+6.显示与隐藏导航栏
+	//头导航的显示与隐藏
+	self.navigationController?.isNavigationBarHidden = true
+	self.navigationController?.setNavigationBarHidden(true, animated: false)
+	//底部导航的显示与隐藏
+	self.navigationController?.isToolbarHidden = false
+	self.navigationController?.setToolbarHidden(false, animated: true)
+7.不同事件显示与隐藏导航栏
+	//当控制器上下滑动，导航的显示与隐藏
+	self.navigationController?.hidesBarsOnSwipe = true       
+	//用户点击控制器，导航的显示与隐藏
+	self.navigationController?.hidesBarsOnTap = true       
+	//键盘弹出时隐藏导航
+	self.navigationController?.hidesBarsWhenKeyboardAppears = true      
+	//当导航栏的垂直size比较紧凑的时候，导航栏自动隐藏
+	self.navigationController?.hidesBarsWhenVerticallyCompact = true
+8.获取导航栏隐藏的手势
+	//获取上下滑动隐藏导航的手势
+	let OnSwipeGesture =self.navigationController?.barHideOnSwipeGestureRecognizer.maximumNumberOfTouches = 2
+	//获取点击控制器隐藏导航的手势
+	let OnTapGesture = self.navigationController?.barHideOnTapGestureRecognizerOnTapGesture?.numberOfTouchesRequired = 2
+9.UINavigationControllerDelegate
+	//导航跳转调用该函数 
+	func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) { 
+		// 当前页控制器和跳转后的控制器 
+		print(navigationController,viewController) }  
+		// 导航每次发生跳转前调用的函数 
+		func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) { 
+		// 当前页控制器和将要跳转后的控制器 
+		print(navigationController,viewController) 
+	}
+	// 导航支持的屏幕方向 
+	func navigationControllerSupportedInterfaceOrientations(_ navigationController: UINavigationController) -> UIInterfaceOrientationMask { 
+    		return .all 
+	}  
+	// 导航首先支持的屏幕方向 
+	func navigationControllerPreferredInterfaceOrientationForPresentation(_ navigationController: UINavigationController) -> UIInterfaceOrientation { 
+    		return .portrait 
+	}
+4.UITabBarController
+
+
+
+
+
+
+
+
+
+2021-6-23
+今天学了CALayer,GCD,NSOperation
+
+一、CALayer
+上午主要学习了CALayer中的属性，如边框(border)、投影(shadow)、圆角(corner)、content中的设置和CALayer的transform属性，包括旋转(rotation)、缩放(scale)和平移(translate)。
+代码在项目CALayer中
+
+
+二、GCD
+下午学习了GCD,代码在项目GCDLearn中
+有5个关键词：sync async concurrent serial
+sync:同步，收到任务结束信号后才能执行下一个任务
+async:异步，不必收到任务结束信号，可以直接执行下一个任务
+serial:串行，先后执行各个任务
+concurrent:同时执行多个任务
+队列有main queue; serial queue; concurrent queue; global queue;
+//队列的创建
+//主队列
+dispatch_queue_t mainQueue = dispatch_get_main_queue();
+//串行队列
+dispatch_queue_t serialQueue = dispatch_queue_create("xz", DISPATCH_QUEUE_SERIAL);
+//并发队列
+dispatch_queue_t concurrentQueue = dispatch_queue_create("xz", DISPATCH_QUEUE_CONCURRENT);
+//全局队列
+dispatch_queue_t golbalQueue = dispatch_get_global_queue(0, 0);
+
+//async分派(异步)
+dispatch_async(queue,^{
+	//代码
+	NSLog(@"hello %i %@",i,[NSThread currentThread]);
+
+});
+
+//sync分派(同步)
+dispatch_sync(queue,^{
+	//代码
+	NSLog(@"hello %i %@",i,[NSThread currentThread]);
+
+});
+
+进阶版：
+1.dispatch_barrier_async
+有时候需要异步执行2组操作，需要先执行第1组，在执行第2组。需要一个栏杆将2组分开
+代码在GCDLearn中- (void)barrier{}函数中
+------------------打印结果-----------------
+1---{number = 4, name = (null)}
+2---{number = 3, name = (null)}
+1---{number = 4, name = (null)}
+2---{number = 3, name = (null)}
+barrier---{number = 4, name = (null)}
+barrier---{number = 4, name = (null)}
+4---{number = 3, name = (null)}
+3---{number = 4, name = (null)}
+4---{number = 3, name = (null)}
+3---{number = 4, name = (null)}
+------------------打印结果-----------------
+先执行栏杆之前的操作，在执行栏杆之后的操作
+
+
+2.延迟执行方法：dispatch_after
+代码在- (void)after{}中
+
+
+
+
+
+三、NSOperation的子类
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+  
+     
